@@ -81,6 +81,23 @@ ELEMENT_DATA = {
     "Tm": {"No": 69, "Ar": 168.93, "color": "#9C27B0"},
     "Yb": {"No": 70, "Ar": 173.05, "color": "#9C27B0"},
     "Lu": {"No": 71, "Ar": 174.97, "color": "#9C27B0"},
+    "Hf": {"No": 72, "Ar": 178.49, "color": "#F1C40F"},
+    "Ta": {"No": 73, "Ar": 180.95, "color": "#F1C40F"},
+    "W": {"No": 74, "Ar": 183.84, "color": "#F1C40F"},
+    "Re": {"No": 75, "Ar": 186.21, "color": "#F1C40F"},
+    "Os": {"No": 76, "Ar": 190.23, "color": "#F1C40F"},
+    "Ir": {"No": 77, "Ar": 192.22, "color": "#F1C40F"},
+    "Pt": {"No": 78, "Ar": 195.08, "color": "#F1C40F"},
+    "Au": {"No": 79, "Ar": 196.97, "color": "#F1C40F"},
+    "Hg": {"No": 80, "Ar": 200.59, "color": "#F1C40F"},
+    "Tl": {"No": 81, "Ar": 204.38, "color": "#BDC3C7"},
+    "Pb": {"No": 82, "Ar": 207.2, "color": "#BDC3C7"},
+    "Bi": {"No": 83, "Ar": 208.98, "color": "#BDC3C7"},
+    "Po": {"No": 84, "Ar": 209.0, "color": "#1ABC9C"},
+    "At": {"No": 85, "Ar": 210.0, "color": "#2ECC71"},
+    "Rn": {"No": 86, "Ar": 222.0, "color": "#9B59B6"},
+    "Fr": {"No": 87, "Ar": 223.0, "color": "#E74C3C"},
+    "Ra": {"No": 88, "Ar": 226.0, "color": "#E67E22"},
     "Ac": {"No": 89, "Ar": 227.0, "color": "#E91E63"},
     "Th": {"No": 90, "Ar": 232.04, "color": "#E91E63"},
     "Pa": {"No": 91, "Ar": 231.04, "color": "#E91E63"},
@@ -112,7 +129,6 @@ ELEMENT_DATA = {
     "Ts": {"No": 117, "Ar": 294.0, "color": "#2ECC71"},
     "Og": {"No": 118, "Ar": 294.0, "color": "#9B59B6"}
 }
-
 # --- GENERATE KELAS CSS DINAMIS DARI WARNA ---
 unique_colors = set([data["color"] for data in ELEMENT_DATA.values()])
 dynamic_css_classes = "\n".join([f".bg-{c.replace('#', '')} {{ background-color: {c} !important; border-color: {c} !important; }}" for c in unique_colors])
