@@ -98,7 +98,7 @@ ELEMENT_DATA = {
     "Ts": {"No": 117, "Ar": 294.0, "color": "#2ECC71", "row": 6, "col": 16},
     "Og": {"No": 118, "Ar": 294.0, "color": "#9B59B6", "row": 6, "col": 17},
     
-    # Lanthanides (Row 7, di-offset kolomnya)
+    # Lantanida
     "La": {"No": 57, "Ar": 138.91, "color": "#9C27B0", "row": 7, "col": 2},
     "Ce": {"No": 58, "Ar": 140.12, "color": "#9C27B0", "row": 7, "col": 3},
     "Pr": {"No": 59, "Ar": 140.91, "color": "#9C27B0", "row": 7, "col": 4},
@@ -115,7 +115,7 @@ ELEMENT_DATA = {
     "Yb": {"No": 70, "Ar": 173.05, "color": "#9C27B0", "row": 7, "col": 15},
     "Lu": {"No": 71, "Ar": 174.97, "color": "#9C27B0", "row": 7, "col": 16},
     
-    # Actinides (Row 8, di-offset kolomnya)
+    # Aktinida
     "Ac": {"No": 89, "Ar": 227.0, "color": "#E91E63", "row": 8, "col": 2},
     "Th": {"No": 90, "Ar": 232.04, "color": "#E91E63", "row": 8, "col": 3},
     "Pa": {"No": 91, "Ar": 231.04, "color": "#E91E63", "row": 8, "col": 4},
@@ -133,18 +133,16 @@ ELEMENT_DATA = {
     "Lr": {"No": 103, "Ar": 262.0, "color": "#E91E63", "row": 8, "col": 16}
 }
 
-# --- 3. SUNTIKKAN STYLING WARNA TOMBOL CUSTOM ---
-# Ini digunakan agar tombol di Streamlit memiliki warna bawaan golongan unsur masing-masing
+# --- 3. SUNTIKKAN STYLING WARNA TOMBOL TABEL PERIODIK ---
 button_styles = ""
 for sym, info in ELEMENT_DATA.items():
     button_styles += f"""
-    div[data-testid="stActionButtonElement"] > button[key="btn_{sym}"], 
     div.stButton > button[key="btn_{sym}"] {{
         background-color: {info['color']} !important;
         color: white !important;
         font-weight: bold !important;
         border: 1px solid rgba(0,0,0,0.2) !important;
-        height: 48px !important;
+        height: 45px !important;
         width: 100% !important;
         padding: 0px !important;
         font-size: 14px !important;
@@ -166,28 +164,22 @@ def tambah_unsur(unsur):
 def reset_puzzle():
     st.session_state.puzzle_comp = []
 
-# --- 5. RENDER TABEL PERIODIK (18 KOLOM AKURAT) ---
+# --- 5. RENDER TABEL PERIODIK NATIVE NATIVE (18 KOLOM AMAN) ---
 st.subheader("🧩 1. Tabel Periodik Unsur")
 
-# Urutan rendering grid baris demi baris (0 s.d 8)
 for r in range(9):
-    # Buat spasi pemisah vertikal sebelum deret lantanida/aktinida
     if r == 7:
-        st.write("")
+        st.write("") # Spasi vertikal pemisah lantanida
     
     cols = st.columns(18)
-    
-    # Filter unsur apa saja yang ada di baris aktif ini
     row_elements = {k: v for k, v in ELEMENT_DATA.items() if v["row"] == r}
     
-    # Mengisi kolom lantanida / aktinida dengan label teks pembantu
     if r == 7:
         cols[0].markdown("<p style='font-size:12px; font-weight:bold; padding-top:12px; color:#888;'>Lan:</p>", unsafe_allow_html=True)
     elif r == 8:
         cols[0].markdown("<p style='font-size:12px; font-weight:bold; padding-top:12px; color:#888;'>Akt:</p>", unsafe_allow_html=True)
         
     for c in range(18):
-        # Cari jika ada unsur yang menduduki koordinat Baris r dan Kolom c ini
         match_sym = None
         for sym, info in row_elements.items():
             if info["col"] == c:
@@ -195,7 +187,6 @@ for r in range(9):
                 break
         
         if match_sym:
-            # Render tombol asli Streamlit. Tidak memicu refresh halaman global!
             if cols[c].button(match_sym, key=f"btn_{match_sym}"):
                 tambah_unsur(match_sym)
                 st.rerun()
@@ -203,12 +194,12 @@ for r in range(9):
 st.markdown("---")
 
 # --- 6. PAPAN SENYAWAMU & KALKULATOR BOBOT MOLEKUL ---
-st.subheader("🖼️ 2. Papan Senyawa Aktif & Hitungan Bobot Molekul")
+st.subheader("🖼️ 2. Papan Senyawa Aktif & Informasi Unsur")
 
 if not st.session_state.puzzle_comp:
-    st.info("Papan kosong. Silakan klik simbol unsur kimia di atas untuk merakit senyawa dan menghitung massanya.")
+    st.info("Papan kosong. Silakan klik unsur kimia di atas untuk memunculkan detail kartu keterangan beserta hitungan massanya.")
 else:
-    # Styling kartu visual di papan senyawa aktif
+    # Desain CSS Kartu Unsur di Papan bawah (Triple Quote ditutup dengan aman)
     st.markdown("""
         <style>
         .element-card {
@@ -221,3 +212,68 @@ else:
         .el-sym { font-size: 26px; font-weight: bold; margin: -2px 0; }
         .el-ar { font-size: 11px; margin-top: 2px; background: rgba(0,0,0,0.2); border-radius: 4px; }
         </style>
+    """, unsafe_allow_html=True)
+    
+    total_komponen = len(st.session_state.puzzle_comp)
+    papan_kolom = st.columns(max(total_komponen, 8))
+    
+    rumus_visual = ""
+    total_mr = 0.0
+    rincian_data = []
+    
+    for idx, item in enumerate(st.session_state.puzzle_comp):
+        unsur = item["unsur"]
+        jumlah = item["jumlah"]
+        
+        no_atom = ELEMENT_DATA[unsur]["No"]
+        ar = ELEMENT_DATA[unsur]["Ar"]
+        warna_bg = ELEMENT_DATA[unsur]["color"]
+        
+        subtotal = ar * jumlah
+        total_mr += subtotal
+        
+        SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+        rumus_visual += f"{unsur}{str(jumlah).translate(SUB) if jumlah > 1 else ''}"
+        
+        rincian_data.append({
+            "Unsur": unsur,
+            "Nomor Atom": no_atom,
+            "Massa Atom (Ar)": ar,
+            "Jumlah": jumlah,
+            "Subtotal Massa (g/mol)": round(subtotal, 4)
+        })
+        
+        with papan_kolom[idx]:
+            card_html = f"""
+            <div class="element-card" style="background-color: {warna_bg};">
+                <div class="el-no">№ {no_atom}</div>
+                <div class="el-sym">{unsur}</div>
+                <div class="el-ar">Ar: {ar}</div>
+            </div>
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
+            
+            c1, c2, c3 = st.columns([1, 1, 1])
+            if c1.button("➖", key=f"papan_min_{unsur}_{idx}"):
+                if item["jumlah"] > 1:
+                    item["jumlah"] -= 1
+                else:
+                    st.session_state.puzzle_comp.pop(idx)
+                st.rerun()
+                
+            c2.markdown(f"<p style='text-align:center; font-size:15px; font-weight:bold; margin-top:4px;'>{jumlah}</p>", unsafe_allow_html=True)
+            
+            if c3.button("➕", key=f"papan_plus_{unsur}_{idx}"):
+                item["jumlah"] += 1
+                st.rerun()
+
+    st.write("")
+    res_col1, res_col2 = st.columns([1, 2])
+    with res_col1:
+        st.success(f"### 🧪 Rumus:\n## **{rumus_visual}**")
+        st.metric(label="Berat Molekul Total (Mr)", value=f"{round(total_mr, 4)} g/mol")
+        st.button("🗑️ Bersihkan Papan", key="btn_reset", on_click=reset_puzzle, type="primary")
+        
+    with res_col2:
+        st.write("**📋 Kontribusi Massa & Detail Struktur Tabel:**")
+        st.dataframe(pd.DataFrame(rincian_data), hide_index=True, use_container_width=True)
